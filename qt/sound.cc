@@ -38,7 +38,7 @@ AudioProc::AudioProc(int fsample, notes_t *inotes, QWidget *parent)
   : QWidget(parent)
 {
   fSample = fsample;
-  tSample = 1.0/(double)fSample;
+  tSample = double(1.0/fSample);
   
   notes = inotes;
   
@@ -55,7 +55,7 @@ AudioProc::AudioProc(int fsample, notes_t *inotes, QWidget *parent)
   // Init the sound hardware
   //------------------------------------------------  
   soundIO = new AudioIO(fsample, FRAMERATE);
-  frames = (qint64) fsample/(FRAMERATE);
+  frames = qint64(fsample/(FRAMERATE));
   maxFrames = frames * SAFTEYMARGIN;
 
   // Set up timer
@@ -63,7 +63,7 @@ AudioProc::AudioProc(int fsample, notes_t *inotes, QWidget *parent)
   connect(soundIO, SIGNAL(notify()), this, SLOT(readAudio()));
   
   //------------------------------------------------
-  filter = new dtFilter((int) maxFrames);
+  filter = new dtFilter(int(maxFrames));
 }
 
 AudioProc::~AudioProc()
@@ -106,8 +106,8 @@ void AudioProc::setHysteresis(double newValue)
 
 void AudioProc::setA4Freq(double newValue)
 {
-  notes->set_a4freq(newValue);
-  setWheelFreq(curNote->freq);
+  notes->set_a4freq(float(newValue));
+  setWheelFreq(double(curNote->freq));
 }
 
 note_t *AudioProc::getCurNote()

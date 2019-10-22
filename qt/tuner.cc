@@ -30,9 +30,7 @@
 // Constants
 //-----------------------------------------------------------
 // Sample frequency and preiod
-const int fsample = 44100;
-const double tsample = 1.0/(float)fsample;
-
+const int fsample = 48000;
 const double A4_DEFAULT = 440.0;
 
 //-------------------------------------------------------------
@@ -50,11 +48,11 @@ Tuner::Tuner(QWidget *parent)
    Wheel *sWheel = new Wheel(ui.strobeFrame);
    
    // Sharp/flat labels + LED
-   LED *flatLED = new LED(this);
+   LED *flatLED  = new LED(this);
    LED *sharpLED = new LED(this);
    flatLED->setState(false);
    sharpLED->setState(false);
-   QLabel *flatLabel = new QLabel("<<<< Flat <<<<", this);
+   QLabel *flatLabel  = new QLabel("<<<< Flat <<<<",  this);
    QLabel *sharpLabel = new QLabel(">>>> Sharp >>>>", this);
    sharpLabel->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
    ui.sharpFlatLayout->addWidget(flatLED);
@@ -65,14 +63,12 @@ Tuner::Tuner(QWidget *parent)
    // Create timer to process audio input
    aProc = new AudioProc(fsample, &notes);
    soundIO = aProc->getAudioIO();
-   connect(aProc, SIGNAL(newAngle(float, float)), 
-	   sWheel, SLOT(setAnglef(float, float)));
-   connect (aProc, SIGNAL(changedNote(note_t *)),
-	    this,  SLOT(setDisplayedNote(note_t *)));
+   connect(aProc, SIGNAL(newAngle(float, float)), sWheel, SLOT(setAnglef(float, float)));
+   connect(aProc, SIGNAL(changedNote(note_t *)),  this,   SLOT(setDisplayedNote(note_t *)));
 
    // hook up sharp/flat LEDs
    connect(aProc, SIGNAL(isSharp(bool)), sharpLED, SLOT(setState(bool)));
-   connect(aProc, SIGNAL(isFlat(bool)),  flatLED, SLOT(setState(bool)));
+   connect(aProc, SIGNAL(isFlat (bool)), flatLED,  SLOT(setState(bool)));
 
    // Use check box to disable auto note detection
    connect(ui.autoDetect, SIGNAL(clicked(bool)),

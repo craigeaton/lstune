@@ -64,12 +64,12 @@ Wheel::Wheel(QWidget *parent) : QWidget(parent)
   for(int r = 0; r < rings; r++)
     {
       wheelPositions.append(QList< QList<bool> >());
-      for(int p = 0; p < segments; p++) 
-	{
-	  wheelPositions[r].append(QList<bool>());
-	  for (int s = 0; s < segments; s++)
-	      wheelPositions[r][p].append(false);
-	}
+      for(int p = 0; p < segments; p++)
+      {
+         wheelPositions[r].append(QList<bool>());
+         for (int s = 0; s < segments; s++)
+              wheelPositions[r][p].append(false);
+      }
     }
 
   // Initialize the array
@@ -91,7 +91,6 @@ Wheel::Wheel(QWidget *parent) : QWidget(parent)
 
 Wheel::~Wheel()
 {
-  ;
 }
 
 void Wheel::calcBrightness(float timeDelta, bool allFalse)
@@ -101,7 +100,7 @@ void Wheel::calcBrightness(float timeDelta, bool allFalse)
   const float strobeLength = (float)750e-6; // Length of strobe "light flash" in seconds
 
   // Snap angle to display element
-  int wheelPos = (int) floor(segments * currentAngle/(2*M_PI));
+  int wheelPos = int( floor(segments * currentAngle/(2*M_PI)) );
   
   for (int ring = 0; ring < rings; ring++)
     for (int n = 0; n < segments; n++)
@@ -111,9 +110,11 @@ void Wheel::calcBrightness(float timeDelta, bool allFalse)
 
 	// Model light brightnses as exponential decay with a single time constant
 	if (!allFalse && state) // Calculate extra brightness
-	  segState[ring][n] = (1.0 - b0) * (1.0 - exp(strobeLength / lightTC)) + b0;
+        segState[ring][n] = 1;
+      //segState[ring][n] = (1.0 - b0) * (1.0 - exp(strobeLength / lightTC)) + b0;
 	else // Calculate time decay since last update
-	  segState[ring][n] = b0 * exp(timeDelta / lightTC);
+        segState[ring][n] = 0;
+      //segState[ring][n] = b0 * exp(timeDelta / lightTC);
       }
 }
 

@@ -105,14 +105,8 @@ void AudioIO::initHW(QAudioDeviceInfo inDevice)
   audioFormat.setSampleRate(fSample); // mono sound
   audioFormat.setCodec("audio/pcm");
   audioFormat.setByteOrder(QAudioFormat::LittleEndian);
-  if (!BUILD_WIN32) {
-    audioFormat.setSampleType(QAudioFormat::Float);
-    audioFormat.setSampleSize(32);
-  }
-  else {
-    audioFormat.setSampleType(QAudioFormat::SignedInt);
-    audioFormat.setSampleSize(16);
-  }
+  audioFormat.setSampleType(QAudioFormat::Float);
+  audioFormat.setSampleSize(32);
 
   if (!info.isFormatSupported(audioFormat)) 
     {
@@ -125,10 +119,7 @@ void AudioIO::initHW(QAudioDeviceInfo inDevice)
     }
 
   int sType = audioFormat.sampleType();
-  if ( !(sType == QAudioFormat::Float ||
-	 ((sType == QAudioFormat::SignedInt || sType == QAudioFormat::UnSignedInt) && 
-	  (audioFormat.sampleSize() == 16 || audioFormat.sampleSize() == 32) ) ))
-    {
+  if ( (sType != QAudioFormat::Float ) || (audioFormat.sampleSize() != 32)) {
       qWarning("Only floats or 32/16 bit integer samples are supported! Exiting");
       qWarning() << "Sample Type:" << sType;
       exit(1);
@@ -144,7 +135,7 @@ void AudioIO::initHW(QAudioDeviceInfo inDevice)
     audioInput->setBufferSize(1000/frameRate);
 
   // Max buffer size in bytes
-  maxBufSize = maxBuffLength * audioFormat.sampleRate() * audioFormat.sampleSize()/8;
+  maxBufSize = qint64(maxBuffLength * audioFormat.sampleRate() * audioFormat.sampleSize()/8);
 }
 
 QList<QAudioDeviceInfo>  AudioIO::getDevices()
@@ -203,14 +194,14 @@ qint64 AudioIO::getAudio(float *inBuffer, int maxSamples)
   else // 32 or 16 bit int
     {
       // Scale factor for float conversion
-      float scale = 1.0/(float)(2<<(dataSize*8 - 2));
+      float scale = float( 1.0/(2<<(dataSize*8 - 2)) );
 
       qint32 intBuf[maxSamples];
       readSamples = IODevice->read((char *)intBuf, bytesToRead)/dataSize;
 
       // Convert to float, write to buffer
       for (int i = 0; i < readSamples; i++)
-	inBuffer[i] = (float) intBuf[i] * scale;
+    inBuffer[i] = float (intBuf[i] * scale);
     }
   
   // Reset buffer if its grown too large, or we've read all the data
